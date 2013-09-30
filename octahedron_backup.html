@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>3D Octahedron</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				font-weight: bold;
+				padding: 0;
+				margin: 0px;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="js/jquery-1.9.1.js"></script>
+		<script>
+			jQuery.noConflict();
+		</script>
+		<script src="js/Three.js"></script>
+		<script src="js/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/Stats.js"></script>
+		<script src="js/TrackballControls.js"></script>
+		<script src="js/THREEx.KeyboardState.js"></script>
+		<script src="js/THREEx.FullScreen.js"></script>
+		<script src="js/THREEx.WindowResize.js"></script>
+
+		<script>
+			// MAIN
+
+			// standard global variables
+			var container, scene, camera, cube, renderer, controls, stats;
+			var keyboard = new THREEx.KeyboardState();
+			//var clock = new THREE.Clock();
+			var time = 0;
+			var ORIGIN = new THREE.Vector3();
+
+			// custom global variables
+			var octa;
+
+			init();
+			animate();
+
+			// FUNCTIONS
+			function init() {
+
+				texture_placeholder = document.createElement('canvas');
+				texture_placeholder.width = 128;
+				texture_placeholder.height = 128;
+
+				projector = new THREE.Projector();
+
+				// SCENE
+				scene = new THREE.Scene();
+
+				// CAMERA
+				var SCREEN_WIDTH = window.innerWidth;
+				var SCREEN_HEIGHT = window.innerHeight;
+				var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 1500;
+				camera = new THREE.PerspectiveCamera(75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 2000000);
+				camera.position.z = 2000;
+				//camera.setLens(50);
+
+				scene.add(camera);
+				camera.position.set(0, 150, 300);
+				camera.lookAt(scene.position);
+
+				// RENDERER
+				if (Detector.webgl)
+					renderer = new THREE.WebGLRenderer({
+						antialias : true
+					});
+				else
+					renderer = new THREE.CanvasRenderer();
+				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+				container = document.createElement('div');
+				document.body.appendChild(container);
+				container.appendChild(renderer.domElement);
+
+				// EVENTS
+				THREEx.WindowResize(renderer, camera);
+				THREEx.FullScreen.bindKey({
+					charCode : 'm'.charCodeAt(0)
+				});
+
+				document.addEventListener('mouseup', onDocumentMouseUp, false);
+				console.log("test");
+
+				// CONTROLS
+				controls = new THREE.TrackballControls(camera);
+
+				// STATS
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.bottom = '10px';
+				stats.domElement.style.zIndex = 100;
+				container.appendChild(stats.domElement);
+
+				// LIGHT
+				//var light = new THREE.PointLight(0xffffff);
+				//light.position.set(0, 250, 0);
+				//scene.add(light);
+
+				//SKYBOX
+				var materials = [loadTexture('images/px.jpg'), // right
+				loadTexture('images/nx.jpg'), // left
+				loadTexture('images/py.jpg'), // top
+				loadTexture('images/ny.jpg'), // bottom
+				loadTexture('images/pz.jpg'), // back
+				loadTexture('images/nz.jpg') // front
+
+				];
+
+				var skybox = new THREE.Mesh(new THREE.CubeGeometry(1024, 1204, 1024, 7, 7, 7), new THREE.MeshFaceMaterial(materials));
+				//skybox.scale.x =  -1;
+				scene.add(skybox);
+
+				for (var i = 0, l = skybox.geometry.vertices.length; i < l; i++) {
+
+					var vertex = skybox.geometry.vertices[i];
+
+					vertex.normalize();
+					vertex.multiplyScalar(550);
+
+				}
+
+				var ambient = new THREE.AmbientLight(0xffffff);
+				scene.add(ambient);
+
+				var pointLight = new THREE.PointLight(0xffffff, 2);
+				scene.add(pointLight);
+
+				////////////
+				// CUBE ///////////////////////////////////////////////////////
+				////////////
+
+				// Using wireframe materials to illustrate shape details.
+
+
+				 var materialA = new THREE.MeshBasicMaterial({
+					 map : THREE.ImageUtils.loadTexture('images/music_title.jpg')
+				})
+				
+				 var materialB = new THREE.MeshBasicMaterial({
+					 map : THREE.ImageUtils.loadTexture('images/settings.png')
+				 })
+ 
+				 var materialC = new THREE.MeshBasicMaterial({
+					 map : THREE.ImageUtils.loadTexture('images/triangle.jpg')
+				 })
+
+				 var materialD = new THREE.MeshBasicMaterial({
+					 map : THREE.ImageUtils.loadTexture('images/triangle.jpg')
+				 })
+				 
+				 
+				// var materialE = new THREE.MeshBasicMaterial({
+					// map : THREE.ImageUtils.loadTexture('images/front_small.jpg')
+				// })
+// 
+				// var materialF = new THREE.MeshBasicMaterial({
+					// map : THREE.ImageUtils.loadTexture('images/triangle.jpg')
+				// })
+				// var materialG = new THREE.MeshBasicMaterial({
+					// map : THREE.ImageUtils.loadTexture('images/triangle.jpg')
+				// })
+// 
+				// var materialH = new THREE.MeshBasicMaterial({
+					// map : THREE.ImageUtils.loadTexture('images/test.jpg')
+				// })
+// 				
+				 var mats = [materialA, materialB, materialC, materialD]
+// 
+				// var geo = new THREE.OctahedronGeometry(90, 0);
+				// geo.materials = [materialA, materialB, materialC, materialD, materialE, materialF, materialG, materialH]
+// 				
+				// // materialA
+				// geo.faces[0].materialIndex = 0;
+				// // materialB
+				// geo.faces[1].materialIndex = 1;
+				// // materialC
+				// geo.faces[2].materialIndex = 2;
+				// // materialD
+				// geo.faces[3].materialIndex = 3;
+				// // materialE
+				// geo.faces[4].materialIndex = 4;
+				// // materialF
+				// geo.faces[5].materialIndex = 5;
+				// // materialG
+				// geo.faces[6].materialIndex = 6;
+				// // materialH
+				// geo.faces[7].materialIndex = 7;
+// 
+				// octa = new THREE.Mesh(geo, new THREE.MeshFaceMaterial(mats));
+				// octa.position.set(0, 0, 0);
+				// octa.overdraw = true;
+				// scene.add(octa);
+
+				/////////////////////////////////////////////////////////////////////
+
+				// var darkMaterial = new THREE.MeshBasicMaterial({
+				// map : THREE.ImageUtils.loadTexture('images/front.jpg')
+				// });
+				// var wireframeMaterial = new THREE.MeshBasicMaterial({
+				// color : 0x000000,
+				// wireframe : true,
+				// transparent : true
+				// });
+				// var multiMaterial = [materialArray, wireframeMaterial];
+				//
+				//
+				// // octahedron
+				// var shape = THREE.SceneUtils.createMultiMaterialObject(new THREE.OctahedronGeometry(120, 0), multiMaterial);
+				// shape.position.set(0, 0, 0);
+				//scene.add(shape);
+			
+			 var pyramidGeometry = new THREE.CylinderGeometry(0,80,80,4);
+ 
+             pyramidGeometry.materials = [materialA, materialB, materialC, materialD]
+			// materialA
+			pyramidGeometry.faces[0].materialIndex = 0;
+			// materialB
+			pyramidGeometry.faces[1].materialIndex = 1;
+			// materialC
+			pyramidGeometry.faces[2].materialIndex = 2;
+			// materialD
+			pyramidGeometry.faces[3].materialIndex = 3;                         
+                         
+                var pyramidMaterial = new THREE.MeshBasicMaterial({
+                     vertexColors:THREE.VertexColors,
+                     side:THREE.DoubleSide
+                 });
+ 
+                 // Create a mesh and insert the geometry and the material. Translate the whole mesh
+                 // by -1.5 on the x axis and by 4 on the z axis. Finally add the mesh to the scene.
+                 pyramidMesh = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
+                 pyramidMesh.position.set(0, 0, 0);
+                 scene.add(pyramidMesh);
+
+			}
+
+			function animate() {
+
+				render();
+				requestAnimationFrame(animate);
+
+				update();
+			}
+
+			function update() {
+				if (keyboard.pressed("z")) {
+					// do something
+				}
+
+				controls.update();
+				stats.update();
+			}
+
+			function render() {
+
+				controls.noZoom = true;
+				renderer.render(scene, camera);
+			}
+
+			function loadTexture(path) {
+
+				var texture = new THREE.Texture(texture_placeholder);
+				var material = new THREE.MeshBasicMaterial({
+					map : texture,
+					overdraw : true,
+					side : THREE.BackSide
+				});
+
+				var image = new Image();
+				image.onload = function() {
+
+					texture.needsUpdate = true;
+					material.map.image = this;
+
+					render();
+
+				};
+				image.src = path;
+
+				return material;
+
+			}
+
+			function onDocumentMouseUp(event) {
+
+				console.log("inside mouse down");
+
+				event.preventDefault();
+
+				var vector = new THREE.Vector3((event.clientX / window.innerWidth ) * 2 - 1, -(event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+				projector.unprojectVector(vector, camera);
+
+				var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+
+				var intersects = raycaster.intersectObject(cube);
+
+				if (intersects.length > 0) {
+
+					console.log("Intersected..Matching face to page..");
+
+					if (intersects[0].face.normal.x == 0 && intersects[0].face.normal.y == 0 && intersects[0].face.normal.z == -1) {
+						window.top.location = "sample.html";
+					}
+					if (intersects[0].face.normal.x == 0 && intersects[0].face.normal.y == 0 && intersects[0].face.normal.z == 1) {
+						window.top.location = "sample.html";
+					}
+					if (intersects[0].face.normal.x == 1 && intersects[0].face.normal.y == 0 && intersects[0].face.normal.z == 0) {
+						window.top.location = "sample.html";
+					}
+					if (intersects[0].face.normal.x == 0 && intersects[0].face.normal.y == -1 && intersects[0].face.normal.z == 0) {
+						window.top.location = "sample.html";
+					}
+					if (intersects[0].face.normal.x == -1 && intersects[0].face.normal.y == 0 && intersects[0].face.normal.z == 0) {
+						window.top.location = "sample.html";
+					}
+					if (intersects[0].face.normal.x == 0 && intersects[0].face.normal.y == 1 && intersects[0].face.normal.z == 0) {
+						window.top.location = "sample.html";
+					}
+
+				}
+
+			}
+
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>3D Cubes</title>
+		<style>
+			body {
+				font-family: Monospace;
+				padding: 0;
+				margin: 0px;
+				height: 100%;
+				width: 100%;
+			}
+			#container {
+				width: 100%;
+				height: 100%;
+			}
+			#blackbox1 {
+				position: absolute;
+				background-color: #000000;
+				z-index: 4;
+				width: 100%;
+			}
+
+			#blackbox2 {
+				position: absolute;
+				background-color: #000000;
+				z-index: 4;
+				width: 100%;
+				height: 100px;
+				top: 90%;
+			}
+			#reset {
+				position: fixed;
+				z-index: 99999;
+				padding: 10px;
+				top: 45%;
+				background: #EEEFEB;
+				color: #000000;
+				border: 1px solid #4D4F53;
+				margin: 0px;
+				-webkit-box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+				box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+			}
+
+			#home {
+				position: fixed;
+				z-index: 99999;
+				padding: 10px;
+				position: fixed;
+				top: 40%;
+				left: 30%;
+				background: #EEEFEB;
+				color: #000000;
+				border: 1px solid #4D4F53;
+				margin: 0px;
+				-webkit-box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+				box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+			}
+			
+			#movies {
+				position: fixed;
+				z-index: 99999;
+				padding: 10px;
+				position: fixed;
+				top: 40%;
+				left: 67%;
+				background: #EEEFEB;
+				color: #000000;
+				border: 1px solid #4D4F53;
+				margin: 0px;
+				-webkit-box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+				box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+			}
+			
+			#music {
+				position: fixed;
+				z-index: 99999;
+				padding: 10px;
+				position: fixed;
+				top: 70%;
+				left: 30%;
+				background: #EEEFEB;
+				color: #000000;
+				border: 1px solid #4D4F53;
+				margin: 0px;
+				-webkit-box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+				box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+			}
+			
+			#games {
+				position: fixed;
+				z-index: 99999;
+				padding: 10px;
+				position: fixed;
+				top: 70%;
+				left: 67%;
+				background: #EEEFEB;
+				color: #000000;
+				border: 1px solid #4D4F53;
+				margin: 0px;
+				-webkit-box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+				box-shadow: 0px 0px 5px 0px rgba(164, 164, 164, 1);
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="blackbox1" align="center">
+			<img id="img1" src="./images/thales_logo.png">
+		</div>
+
+		<div id="reset">
+			RESET CAMERA
+		</div>
+
+		<div id="home">
+			HOME
+		</div>
+
+		<div id="movies">
+			MOVIES
+		</div>
+		
+		<div id="music">
+			MUSIC
+		</div>
+		
+		<div id="games">
+			GAMES
+		</div>
+
+		<script src="js/jquery-1.9.1.js"></script>
+		<script>
+			jQuery.noConflict();
+		</script>
+		<script src="js/Three.js"></script>
+		<script src="js/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/Stats.js"></script>
+		<script src="js/TrackballControls.js"></script>
+		<script src="js/THREEx.KeyboardState.js"></script>
+		<script src="js/THREEx.FullScreen.js"></script>
+		<script src="js/THREEx.WindowResize.js"></script>
+		<script type="text/javascript" src="js/preloadjs.min.js"></script>
+		<script type="text/javascript" src="js/TweenMax.min.js"></script>
+		<script src="js/tween.min.js"></script>
+
+		<script>
+			window.onload = function() {
+				jQuery.getScript("js/main_arrows.js", function() {
+					console.log('Main scrit was fetched.');
+				});
+
+			};
+		</script>
+
+	</body>
+</html>

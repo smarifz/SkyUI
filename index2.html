@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>3D Cubes</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				font-weight: bold;
+				 padding: 0;
+				margin: 0px;
+			}
+		</style>
+	</head>
+	<body>
+
+
+		<script src="js/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/Stats.js"></script>
+		<script src="js/TrackballControls.js"></script>
+		<script src="js/THREEx.KeyboardState.js"></script>
+		<script src="js/THREEx.FullScreen.js"></script>
+		<script src="js/THREEx.WindowResize.js"></script>
+
+		<script>
+			// MAIN
+
+			// standard global variables
+			var container, scene, camera, renderer, controls, stats;
+			var keyboard = new THREEx.KeyboardState();
+			var clock = new THREE.Clock();
+			var time = 0;
+			var ORIGIN = new THREE.Vector3();
+			
+			// custom global variables
+			var cube;
+
+			init();
+			animate();
+
+			// FUNCTIONS
+			function init() {
+				
+				texture_placeholder = document.createElement( 'canvas' );
+				texture_placeholder.width = 128;
+				texture_placeholder.height = 128;
+				
+				// SCENE
+				scene = new THREE.Scene();
+
+				// CAMERA
+				var SCREEN_WIDTH = window.innerWidth;
+				var SCREEN_HEIGHT = window.innerHeight;
+				var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
+				camera = new THREE.PerspectiveCamera(50, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 20000);
+				camera.position.z = 2000;
+				
+
+				
+				 scene.add(camera);
+				 camera.position.set(0, 150, 400);
+				 camera.lookAt(scene.position);
+				 
+				// RENDERER
+				if (Detector.webgl)
+					renderer = new THREE.WebGLRenderer({
+						antialias : true
+					});
+				 else
+				 renderer = new THREE.CanvasRenderer();
+				renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+				container = document.createElement('div');
+				document.body.appendChild(container);
+				container.appendChild(renderer.domElement);
+
+				// EVENTS
+				THREEx.WindowResize(renderer, camera);
+				THREEx.FullScreen.bindKey({
+					charCode : 'm'.charCodeAt(0)
+				});
+
+				// CONTROLS
+				controls = new THREE.TrackballControls(camera);
+
+				// STATS
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.bottom = '0px';
+				stats.domElement.style.zIndex = 100;
+				container.appendChild(stats.domElement);
+
+				// LIGHT
+				var light = new THREE.PointLight(0xffffff);
+				light.position.set(0, 250, 0);
+				scene.add(light);
+
+
+				//SKYBOX
+				// urls of the images,
+				// one per half axis
+				//var urls = ['images/px.jpg', 'images/nx.jpg', 'images/py.jpg', 'images/ny.jpg', 'images/pz.jpg', 'images/nz.jpg'],
+
+				var materials = [
+
+					loadTexture( 'images/px.jpg' ), // right
+					loadTexture( 'images/nx.jpg' ), // left
+					loadTexture( 'images/ny.jpg' ), // top
+					loadTexture( 'images/py.jpg' ), // bottom
+					loadTexture( 'images/pz.jpg' ), // back
+					loadTexture( 'images/nz.jpg' ) // front
+
+				];
+
+
+				// wrap it up into the
+				// object that we need
+				//cubemap = THREE.ImageUtils.loadTextureCube(urls);
+
+				// set the format, likely RGB
+				// unless you've gone crazy
+				// cubemap.format = THREE.RGBFormat;
+				// var material = new THREE.MeshBasicMaterial({
+					// color : 0xffffff,
+					// envMap : cubemap,
+					// // fragmentShader: shader.fragmentShader,
+					// // vertexShader: shader.vertexShader,
+					// // uniforms: shader.uniforms,
+					// overdraw: true,
+					// //depthWrite: false,
+					// side: THREE.BackSide
+				// });
+				
+				
+				//var skybox = new THREE.Mesh(new THREE.CubeGeometry(1024, 1024, 1024, 7, 7, 7), material);
+				
+				var skybox = new THREE.Mesh( new THREE.CubeGeometry( 1024, 1024, 1024, 7, 7, 7 ), new THREE.MeshFaceMaterial( materials ) );
+				
+				// var ambient = new THREE.AmbientLight(0xffffff);
+				// scene.add(ambient);
+
+			 //var pointLight = new THREE.PointLight(0xffffff, 2);
+			 //scene.add(pointLight);
+				scene.add(skybox);
+
+				////////////
+				// CUSTOM //
+				////////////
+
+				//Cube with different images on each face
+				var materialArray = [];
+				materialArray.push(new THREE.MeshBasicMaterial({
+					map : THREE.ImageUtils.loadTexture('images/front.jpg')
+				}));
+				materialArray.push(new THREE.MeshBasicMaterial({
+					map : THREE.ImageUtils.loadTexture('images/airport1.jpg')
+				}));
+				materialArray.push(new THREE.MeshBasicMaterial({
+					map : THREE.ImageUtils.loadTexture('images/airport2.jpg')
+				}));
+				materialArray.push(new THREE.MeshBasicMaterial({
+					map : THREE.ImageUtils.loadTexture('images/redrome.jpg')
+				}));
+				materialArray.push(new THREE.MeshBasicMaterial({
+					map : THREE.ImageUtils.loadTexture('images/front.jpg')
+				}));
+				materialArray.push(new THREE.MeshBasicMaterial({
+					map : THREE.ImageUtils.loadTexture('images/back.jpg')
+				}));
+				var DiceBlueMaterial = new THREE.MeshFaceMaterial(materialArray);
+
+				var DiceBlueGeom = new THREE.CubeGeometry(85, 85, 85, 1, 1, 1);
+				var cube = new THREE.Mesh(DiceBlueGeom, DiceBlueMaterial);
+				cube.position.set(0, 0, 0);
+				cube.overdraw = true;
+				scene.add(cube);
+
+			}
+
+			function animate() {
+
+				render();
+				requestAnimationFrame(animate);
+
+				update();
+			}
+
+			function update() {
+				if (keyboard.pressed("z")) {
+					// do something
+				}
+
+				controls.update();
+				stats.update();
+			}
+
+			function render() {
+				renderer.render(scene, camera);
+			}
+			
+			function loadTexture( path ) {
+
+				var texture = new THREE.Texture( texture_placeholder );
+				var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: true, side: THREE.BackSide } );
+
+				var image = new Image();
+				image.onload = function () {
+
+					texture.needsUpdate = true;
+					material.map.image = this;
+
+					render();
+
+				};
+				image.src = path;
+
+				return material;
+
+			}
+
+		</script>
+
+	</body>
+</html>
